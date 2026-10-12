@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:zikzak_inappwebview/zikzak_inappwebview.dart' hide SettingsController;
 import '../../../core/theme/app_theme.dart';
@@ -12,6 +13,7 @@ class _BrowserTab {
   String url;
   final int? windowId; // null = tab utama, ada isinya = tab hasil "buka di tab baru"
   bool loading = true;
+  String? errorMessage;
 
   _BrowserTab({
     required this.title,
@@ -210,6 +212,39 @@ class _BrowserPageState extends State<BrowserPage> {
 
   Widget _buildWebView(int index) {
     final tab = _tabs[index];
+    return Stack(
+      children: [
+        Positioned.fill(child: _buildInAppWebView(tab, index)),
+        if (tab.errorMessage != null) Positioned.fill(child: _buildErrorOverlay(tab)),
+      ],
+    );
+  }
+
+  Widget _buildErrorOverlay(_BrowserTab tab) {
+    return Container(
+      color: AppColors.bg,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.wifi_off_rounded, color: AppColors.gray, size: 40),
+          const SizedBox(height: 14),
+          Text(tab.errorMessage!,
+              textAlign: TextAlign.center, style: const TextStyle(color: AppColors.gray, fontSize: 12.5, height: 1.5)),
+          const SizedBox(height: 18),
+          OutlinedButton.icon(
+            onPressed: () => tab.controller?.reload(),
+            icon: const Icon(Icons.refresh, size: 16, color: AppColors.cyan),
+            label: const Text('Coba Lagi', style: TextStyle(color: AppColors.ink)),
+            style: OutlinedButton.styleFrom(side: const BorderSide(color: AppColors.line)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInAppWebView(_BrowserTab tab, int index) {
     return InAppWebView(
       windowId: tab.windowId,
       initialUrlRequest: tab.windowId == null ? URLRequest(url: WebUri(tab.url)) : null,
@@ -224,6 +259,7 @@ class _BrowserPageState extends State<BrowserPage> {
       onLoadStart: (controller, url) {
         setState(() {
           tab.loading = true;
+          tab.errorMessage = null; // reload/navigasi baru -> bersihin error lama
           tab.url = url?.toString() ?? tab.url;
           if (index == _activeIndex) _urlController.text = tab.url;
         });
@@ -233,6 +269,31 @@ class _BrowserPageState extends State<BrowserPage> {
         setState(() {
           tab.loading = false;
           tab.title = (title?.isNotEmpty ?? false) ? title! : (url?.host ?? 'Tab');
+        });
+      },
+      onReceivedError: (controller, request, error) async {
+        // Resource kecil (iklan, tracker, gambar) sering gagal load wajar -
+        // itu bukan masalah, jangan nampilin halaman error full buat itu.
+        // Cuma tampilin error kalau yang gagal itu HALAMAN UTAMA-nya.
+        if (!(request.isForMainFrame ?? true)) return;
+
+        final connectivity = await Connectivity().checkConnectivity();
+        final isOffline = connectivity.contains(ConnectivityResult.none) || connectivity.isEmpty;
+
+        setState(() {
+          tab.loading = false;
+          if (isOffline) {
+            tab.errorMessage = 'Gak ada koneksi internet. Cek WiFi/data seluler kamu.';
+          } else if (error.description.toLowerCase().contains('refused')) {
+            tab.errorMessage =
+                'Server situs ini menolak koneksi (connection refused). Biasanya ini masalah dari situsnya sendiri (lagi down/nolak), bukan dari koneksi kamu - coba lagi nanti atau cek apakah linknya bener.';
+          } else if (error.description.toLowerCase().contains('name_not_resolved') ||
+              error.description.toLowerCase().contains('dns')) {
+            tab.errorMessage =
+                'Alamat situs ini gak ketemu (DNS gagal). Coba cek lagi URL-nya, atau ganti DNS di Settings > Browser kalau sering kejadian.';
+          } else {
+            tab.errorMessage = 'Gagal buka halaman ini: ${error.description}';
+          }
         });
       },
       onCreateWindow: (controller, createWindowAction) async {

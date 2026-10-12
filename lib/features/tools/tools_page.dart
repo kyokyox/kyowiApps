@@ -33,6 +33,15 @@ import 'image_compressor/image_compressor_page.dart';
 import 'color_picker/color_picker_page.dart';
 import 'scientific_calculator/scientific_calculator_page.dart';
 import 'timezone_converter/timezone_converter_page.dart';
+import 'habit_tracker/habit_tracker_page.dart';
+import 'pomodoro_timer/pomodoro_timer_page.dart';
+import 'backup_restore/backup_restore_page.dart';
+import 'diff_checker/diff_checker_page.dart';
+import 'cron_parser/cron_parser_page.dart';
+import 'dummy_data_generator/dummy_data_generator_page.dart';
+import 'file_compressor/file_compressor_page.dart';
+import 'network_speed_test/network_speed_test_page.dart';
+import 'checklist/checklist_page.dart';
 
 class ToolsPage extends StatefulWidget {
   const ToolsPage({super.key});
@@ -118,6 +127,30 @@ class ToolsPage extends StatefulWidget {
           desc: 'Tulis & preview markdown live',
           builder: (_) => const MarkdownPreviewerPage(),
         ),
+        ToolEntry(
+          icon: Icons.difference_outlined,
+          name: 'Diff Checker',
+          desc: 'Bandingin 2 teks, liat apa yang beda',
+          builder: (_) => const DiffCheckerPage(),
+        ),
+        ToolEntry(
+          icon: Icons.schedule_outlined,
+          name: 'Cron Parser',
+          desc: 'Jelasin jadwal cron expression',
+          builder: (_) => const CronParserPage(),
+        ),
+        ToolEntry(
+          icon: Icons.dataset_outlined,
+          name: 'Dummy Data Generator',
+          desc: 'Generate data JSON palsu buat testing',
+          builder: (_) => const DummyDataGeneratorPage(),
+        ),
+        ToolEntry(
+          icon: Icons.folder_zip_outlined,
+          name: 'File Compressor',
+          desc: 'Kompres/ekstrak file .zip',
+          builder: (_) => const FileCompressorPage(),
+        ),
       ],
     ),
     ToolCategory(
@@ -179,6 +212,12 @@ class ToolsPage extends StatefulWidget {
           desc: 'Bandingin jam di berbagai kota',
           builder: (_) => const TimezoneConverterPage(),
         ),
+        ToolEntry(
+          icon: Icons.network_check,
+          name: 'Network Speed Test',
+          desc: 'Tes kecepatan internet beneran',
+          builder: (_) => const NetworkSpeedTestPage(),
+        ),
       ],
     ),
     ToolCategory(
@@ -228,6 +267,30 @@ class ToolsPage extends StatefulWidget {
           name: 'Clipboard History',
           desc: 'Histori teks yang pernah di-copy',
           builder: (_) => const ClipboardHistoryPage(),
+        ),
+        ToolEntry(
+          icon: Icons.checklist,
+          name: 'Checklist',
+          desc: 'Grup kegiatan, bisa lebih dari 1 aktif, reset tiap jam 12 malam',
+          builder: (_) => const ChecklistPage(),
+        ),
+        ToolEntry(
+          icon: Icons.local_fire_department_outlined,
+          name: 'Habit Tracker',
+          desc: 'Checklist kebiasaan harian + streak',
+          builder: (_) => const HabitTrackerPage(),
+        ),
+        ToolEntry(
+          icon: Icons.timer_outlined,
+          name: 'Pomodoro Timer',
+          desc: 'Timer fokus kerja & istirahat',
+          builder: (_) => const PomodoroTimerPage(),
+        ),
+        ToolEntry(
+          icon: Icons.backup_outlined,
+          name: 'Backup & Restore',
+          desc: 'Export/import semua data lokal kamu',
+          builder: (_) => const BackupRestorePage(),
         ),
       ],
     ),
