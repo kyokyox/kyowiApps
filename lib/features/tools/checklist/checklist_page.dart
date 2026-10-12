@@ -152,7 +152,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
                 ),
               ),
               IconButton(icon: const Icon(Icons.delete_outline, color: AppColors.magenta, size: 18), onPressed: () => _deleteGroup(group)),
-              Switch(value: group.active, onChanged: (_) => _toggleActive(group), activeColor: AppColors.cyan),
+              Switch(value: group.active, onChanged: (_) => _toggleActive(group), activeThumbColor: AppColors.cyan),
             ],
           ),
         ),

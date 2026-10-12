@@ -32,7 +32,7 @@ class SeraphPageTransitionsBuilder extends PageTransitionsBuilder {
             transform: Matrix4.identity()
               ..setEntry(3, 2, 0.001) // perspective tipis biar rotasi kerasa 3D bukan flat
               ..rotateY(angle)
-              ..scale(scale),
+              ..scaleByDouble(scale, scale, scale, 1.0),
             child: child,
           ),
         );
